@@ -42,13 +42,17 @@ var requestHandler = function(request, response) {
     request.on('data', (chunk) => {
       body.push(chunk);
     }).on('end', () => {
-      body = Buffer.concat(body).toString();
+      console.log(JSON.parse(body));
+      //body = Buffer.concat(body).toString();
       // console.log(body);
-      result['results'].push(body);
-      console.dir(JSON.stringify(result["results"]));
-      console.dir(JSON.parse(result["results"]));
+      // result['results'].push(body);
+      // console.dir(JSON.stringify(result["results"]));
+      // console.dir(JSON.parse(result["results"]));
       // console.log(typeof JSON.parse(result["results"][0]));
-
+      // Parse will break if parsing a previously stringified object
+      // Should we loop through and parse each object in array indiviually?>
+      // loop(result['results'])...and parse each object indiviually..push to new Array
+      
       //result = JSON.parse(result);
     });
     
