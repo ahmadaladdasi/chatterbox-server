@@ -12,7 +12,7 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 var exports = module.exports = {};
-var result = {'results':[]};
+var result = {results:[]};
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -31,45 +31,30 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   //console.log(request);
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
-
+  // console.dir('request' + request)
 
   // The outgoing status.
   var statusCode = 200;
   
-  if (request.url === '/classes/messages' && request.method === 'POST') {
-    statusCode = 201;
-    let body = [];  // to hold our request body
-    request.on('data', (chunk) => {
-      body.push(chunk);
-    }).on('end', () => {
-      console.log(JSON.parse(body));
-      //body = Buffer.concat(body).toString();
-      // console.log(body);
-      // result['results'].push(body);
-      // console.dir(JSON.stringify(result["results"]));
-      // console.dir(JSON.parse(result["results"]));
-      // console.log(typeof JSON.parse(result["results"][0]));
-      // Parse will break if parsing a previously stringified object
-      // Should we loop through and parse each object in array indiviually?>
-      // loop(result['results'])...and parse each object indiviually..push to new Array
-      
-      //result = JSON.parse(result);
-    });
-    
-  } 
-  // else if (request.url === '/classes/messages' && request.method === 'GET') {
-  //   if (result['results'].length > 0) {
-  //     result = JSON.parse(result);
-  //   }
-  // }
-  
-  if(request.url !== '/classes/messages') {
+  if(!request.url.includes('/classes/messages')) {
     statusCode = 404;
   }
   
-  // if (request.url === '/classes/messages' && request.method === 'GET') {
+  if (request.url.includes('/classes/messages') && request.method === 'POST') {
+    statusCode = 201;
+    let body = [];  // to hold our request body
+    request.on('data', (chunk) => {
+      // console.log(chunk);
+      body.push(chunk);
+    }).on('end', () => {
+      body = JSON.parse(body);
+      body.objectId = result["results"].length;
+      body.createdAt = new Date();
+      result["results"].push(body);
+    });
     
-  // }
+  } 
+  
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 
@@ -78,7 +63,7 @@ var requestHandler = function(request, response) {
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
   // headers['Content-Type'] = 'text/plain';
-  headers['Content-Type'] = 'text/plain';
+  headers['Content-Type'] = 'application/json';
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
@@ -90,8 +75,7 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  //console.log(JSON.stringify(result));
-  // console.log ("output",JSON.stringify(result));
+  // console.log(JSON.stringify(result.results));
   response.end(JSON.stringify(result));
 };
 
